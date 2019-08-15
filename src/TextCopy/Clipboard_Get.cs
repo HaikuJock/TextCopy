@@ -1,14 +1,12 @@
 ﻿using System;
-
-#if (NETSTANDARD)
-using System.Runtime.InteropServices;
-#endif
+using System.Threading.Tasks;
 
 namespace TextCopy
 {
     public static partial class Clipboard
     {
-        static Func<string> getFunc = CreateGet();
+        static Func<string> getFunc;
+        static Func<Task<string>> getFuncAsync;
 
         /// <summary>
         /// Retrieves text data from the Clipboard.
@@ -18,31 +16,12 @@ namespace TextCopy
            return getFunc();
         }
 
-#if (NETSTANDARD)
-        static Func<string> CreateGet()
+        /// <summary>
+        /// Retrieves text data from the Clipboard.
+        /// </summary>
+        public static Task<string> GetTextAsync()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return WindowsClipboard.GetText;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return OsxClipboard.GetText;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return LinuxClipboard.GetText;
-            }
-
-            return () => throw new NotSupportedException();
+           return getFuncAsync();
         }
-#else
-        static Func<string> CreateGet()
-        {
-             return WindowsClipboard.GetText;
-        }
-#endif
     }
 }

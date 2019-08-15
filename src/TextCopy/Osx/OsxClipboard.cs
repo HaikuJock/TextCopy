@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-static class OsxClipboard
+static partial class OsxClipboard
 {
     static IntPtr nsString = objc_getClass("NSString");
     static IntPtr nsPasteboard = objc_getClass("NSPasteboard");
@@ -22,31 +22,6 @@ static class OsxClipboard
         nsStringPboardType = objc_msgSend(objc_msgSend(nsString, allocRegister), initWithUtf8Register, "NSStringPboardType");
 
         generalPasteboard = objc_msgSend(nsPasteboard, generalPasteboardRegister);
-    }
-
-    public static string GetText()
-    {
-        var ptr = objc_msgSend(generalPasteboard, stringForTypeRegister, nsStringPboardType);
-        var charArray = objc_msgSend(ptr, utf8Register);
-        return Marshal.PtrToStringAnsi(charArray);
-    }
-
-    public static void SetText(string text)
-    {
-        IntPtr str = default;
-        try
-        {
-            str = objc_msgSend(objc_msgSend(nsString, allocRegister), initWithUtf8Register, text);
-            objc_msgSend(generalPasteboard, clearContentsRegister);
-            objc_msgSend(generalPasteboard, setStringRegister, str, utfTextType);
-        }
-        finally
-        {
-            if (str != default)
-            {
-                objc_msgSend(str, sel_registerName("release"));
-            }
-        }
     }
 
     [DllImport("/System/Library/Frameworks/AppKit.framework/AppKit")]
